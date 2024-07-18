@@ -1,0 +1,17 @@
+---
+- name: Enforce SSH Security
+  hosts: all
+  become: true
+  tasks:
+    - name: Allow SSH from trusted Ips
+      lineinfile:
+        path: /home/labuser/mydir/myconf.conf
+        regexp: '^AllowUsers'
+        line: 'AllowUsers labuser@34.100.171.198'
+      notify:
+          - Restart SSH Service
+  handlers:
+    - name: Restart SSH Service
+      service:
+        name: sshd
+        state: restarted

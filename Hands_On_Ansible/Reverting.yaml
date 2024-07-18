@@ -1,0 +1,20 @@
+﻿---
+- name: Enforce Desired Configuration and Revert it
+  hosts: all
+  become: yes
+  tasks:
+    - name: This Task Will Take Backup
+      fetch:
+        src: /var/www/html/index.html
+        dest: /home/labuser/default_remote/default.html
+        flat: yes
+    - name: This task will set desired configuration
+      copy:
+        src: /home/labuser/WEB_SERVER/index.html
+        dest: /var/www/html/index.html
+      notify: Revert Configuration
+  handlers: 
+    - name: Revert Configuration
+      copy:
+        src: /home/labuser/default_remote/default.html
+        dest: /var/www/html/index.html

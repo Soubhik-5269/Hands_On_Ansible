@@ -1,0 +1,21 @@
+---
+- name: perform preboot tasks and upgrade using yum
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure latest yum packages are installed
+      apt:
+        name: 'nginx'
+        state: latest
+        
+    - name: Reboot The Server Using Command Module
+      command: /sbin/reboot
+      async: 1
+      poll: 0
+
+    - name: Wait For the server to reboot and SSH become available
+      wait_for:
+        port: 22
+        delay: 10
+        timeout: 300
+      delegate_to: localhost

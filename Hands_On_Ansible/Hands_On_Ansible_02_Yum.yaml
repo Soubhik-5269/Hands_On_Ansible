@@ -4,8 +4,8 @@
   become: yes
   vars:
     new_user: My_Dummy_User
-    new_user_password: Newuser@123  # Consider using a more secure method for passwords, like Ansible vault
-    ssh_port: 20  # Example port number, change as needed
+    new_user_password: Newuser@123
+    ssh_port: 20
 
   tasks:
     - name: Create a new user account
@@ -19,7 +19,7 @@
       authorized_key:
         user: "{{ new_user }}"
         state: present
-        key: "{{ lookup('file', '/path/to/public_key.pub') }}"  # Replace with the path to your public key file
+        key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
 
     - name: Add user to sudoers
       lineinfile:
@@ -32,11 +32,20 @@
         name: '*'
         state: latest
         update_cache: yes
+      retries: 5
+      delay: 30
+      until: result is succeeded
+      register: result
+      ignore_errors: yes
 
     - name: Install and configure firewalld
       yum:
         name: firewalld
         state: present
+      retries: 5
+      delay: 30
+      until: result is succeeded
+      register: result
 
     - name: Start and enable firewalld
       service:
@@ -61,6 +70,10 @@
       yum:
         name: postfix
         state: present
+      retries: 5
+      delay: 30
+      until: result is succeeded
+      register: result
 
     - name: Ensure Postfix is started and enabled
       service:
@@ -72,7 +85,7 @@
       lineinfile:
         path: /etc/postfix/main.cf
         regexp: '^#?myhostname ='
-        line: 'myhostname = your_domain.com'  # Replace with your domain
+        line: 'myhostname = your_domain.com'
 
     - name: Configure SSH port
       lineinfile:

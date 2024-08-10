@@ -1,0 +1,86 @@
+---
+- name: Configure user account and server
+  hosts: all
+  become: yes
+  vars:
+    new_user: My_Dummy_User
+    new_user_password: Newuser@123  # Consider using a more secure method for passwords, like Ansible vault
+    ssh_port: 20  # Example port number, change as needed
+
+  tasks:
+    - name: Create a new user account
+      user:
+        name: "{{ new_user }}"
+        password: "{{ new_user_password | password_hash('sha512') }}"
+        shell: /bin/bash
+        state: present
+
+    - name: Configure SSH public key authentication for the user
+      authorized_key:
+        user: "{{ new_user }}"
+        state: present
+        key: "{{ lookup('file', '/path/to/public_key.pub') }}"  # Replace with the path to your public key file
+
+    - name: Add user to sudoers
+      lineinfile:
+        path: /etc/sudoers
+        line: "{{ new_user }} ALL=(ALL) NOPASSWD:ALL"
+        validate: 'visudo -cf %s'
+
+    - name: Run system updates and upgrades
+      apt:
+        upgrade: dist
+        update_cache: yes
+
+    - name: Install UFW and configure firewall to allow only SSH traffic
+      apt:
+        name: ufw
+        state: present
+
+    - name: Allow SSH traffic through UFW
+      ufw:
+        rule: allow
+        name: OpenSSH
+        state: enabled
+
+    - name: Set UFW to deny all other traffic
+      ufw:
+        rule: deny
+        name: 'any'
+        state: enabled
+
+    - name: Install and configure Postfix for daily summary emails
+      apt:
+        name: postfix
+        state: present
+
+    - name: Configure Postfix with Debconf
+      debconf:
+        name: postfix
+        question: 'postfix/main_mailer_type'
+        value: 'Internet Site'
+        vtype: string
+
+    - name: Set the Postfix system mail name
+      debconf:
+        name: postfix
+        question: 'postfix/mailname'
+        value: 'your_domain.com'  # Replace with your domain
+        vtype: string
+
+    - name: Configure SSH port
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port '
+        line: "Port {{ ssh_port }}"
+
+    - name: Disable SSH root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin '
+        line: 'PermitRootLogin no'
+
+    - name: Restart SSH service to apply changes
+      service:
+        name: ssh
+        state: restarted

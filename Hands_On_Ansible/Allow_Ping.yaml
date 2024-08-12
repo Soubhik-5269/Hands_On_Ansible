@@ -1,0 +1,12 @@
+---
+- name: Configure user account and server
+  hosts: all
+  become: yes
+  tasks:
+  - name: Allow ICMP (ping) requests through firewalld
+    firewalld:
+      icmp_block: echo-request
+      zone: drop
+      state: disabled
+      permanent: yes
+      immediate: yes

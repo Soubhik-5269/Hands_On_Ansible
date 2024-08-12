@@ -32,7 +32,7 @@
         name: '*'
         state: latest
         update_cache: yes
-      retries: 5
+      retries: 1
       delay: 30
       until: result is succeeded
       register: result
@@ -60,11 +60,8 @@
         state: enabled
         immediate: yes
 
-    - name: Set firewalld to deny all other traffic
-      firewalld:
-        default_zone: drop
-        immediate: yes
-        state: enabled
+    - name: Set firewalld default zone to drop
+      command: firewall-cmd --set-default-zone=drop
 
     - name: Install and configure Postfix for daily summary emails
       yum:

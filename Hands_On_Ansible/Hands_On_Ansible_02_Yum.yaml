@@ -53,8 +53,8 @@
         state: started
         enabled: yes
 
-    - name: Allow ICMP traffic in the drop zone using a rich rule
-      command: firewall-cmd --zone=drop --add-rich-rule='rule family="ipv4" protocol value="icmp" accept' --permanent
+    - name: Allow SSH traffic in the drop zone
+      command: firewall-cmd --zone=drop --add-rich-rule='rule family="ipv4" service name="ssh" accept' --permanent
 
     - name: Set firewalld default zone to drop
       command: firewall-cmd --set-default-zone=drop

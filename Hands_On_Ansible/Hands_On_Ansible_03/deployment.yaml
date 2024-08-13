@@ -1,0 +1,32 @@
+---
+- name: Install and Configure Ansistrano Rollback
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install ansistrano.rollback role via Ansible Galaxy
+      ansible.builtin.command:
+        cmd: ansible-galaxy install ansistrano.rollback
+      changed_when: false
+
+    - name: Ensure ansistrano.rollback role is installed
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.ansible/roles/ansistrano.rollback"
+      register: ansistrano_rollback_role
+
+    - name: Fail if ansistrano.rollback role is not installed
+      ansible.builtin.fail:
+        msg: "The ansistrano.rollback role is not installed."
+      when: not ansistrano_rollback_role.stat.exists
+
+    - name: Set up Ansistrano rollback configuration
+      ansible.builtin.copy:
+        dest: "{{ ansible_env.HOME }}/roles/ansistrano.rollback/defaults/main.yml"
+        content: |
+          ---
+          ansistrano_rollback_enabled: true
+          ansistrano_rollback_version: "{{ ansistrano_deploy_to }}/releases/previous_release"
+        mode: '0644'
+        owner: root
+        group: root
+      when: ansistrano_rollback_role.stat.exists

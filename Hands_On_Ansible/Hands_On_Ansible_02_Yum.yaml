@@ -5,7 +5,7 @@
   vars:
     new_user: My_Dummy_User
     new_user_password: Newuser@123
-    ssh_port: 20
+    ssh_port: 22
 
   tasks:
     - name: Create a new user account
@@ -53,15 +53,14 @@
         state: started
         enabled: yes
 
-    - name: Allow SSH traffic through firewalld
-      firewalld:
-        service: ssh
-        permanent: yes
-        state: enabled
-        immediate: yes
+    - name: Allow ICMP traffic in the drop zone using a rich rule
+      command: firewall-cmd --zone=drop --add-rich-rule='rule family="ipv4" protocol value="icmp" accept' --permanent
 
     - name: Set firewalld default zone to drop
       command: firewall-cmd --set-default-zone=drop
+
+    - name: Reload firewalld to apply changes
+      command: firewall-cmd --reload
 
     - name: Install and configure Postfix for daily summary emails
       yum:

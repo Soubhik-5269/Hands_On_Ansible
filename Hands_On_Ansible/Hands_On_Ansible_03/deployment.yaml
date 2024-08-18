@@ -3,6 +3,9 @@
   hosts: all
   become: yes
 
+  vars:
+    ansistrano_deploy_to: "/var/www/myapp"  # Set the deployment directory here
+
   tasks:
     - name: Install ansistrano.rollback role via Ansible Galaxy
       ansible.builtin.command:
@@ -21,7 +24,7 @@
 
     - name: Set up Ansistrano rollback configuration
       ansible.builtin.copy:
-        dest: "{{ ansible_env.HOME }}/roles/ansistrano.rollback/defaults/main.yml"
+        dest: "{{ ansible_env.HOME }}/.ansible/roles/ansistrano.rollback/defaults/main.yml"
         content: |
           ---
           ansistrano_rollback_enabled: true

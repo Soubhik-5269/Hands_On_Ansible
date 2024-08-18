@@ -1,2 +1,12 @@
 ---
 # tasks file for Ping_All_Target
+- name: This Task will test connection for all targeted server using ping module
+  ping:
+
+- name: This Task Will print variable value (User)
+  debug:
+   msg: "This Role is created by {{User}}"
+
+- name: This Task Will print variable value (Description)
+  debug:
+   msg: "This Role is created by {{Description}}"

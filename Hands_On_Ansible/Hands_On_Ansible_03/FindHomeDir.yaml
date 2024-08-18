@@ -1,0 +1,5 @@
+- name: Get HOME directory
+  hosts: localhost
+  tasks:
+    - debug:
+        msg: "{{ ansible_env.HOME }}"

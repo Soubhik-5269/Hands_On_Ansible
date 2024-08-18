@@ -3,10 +3,18 @@
   hosts: all
   become: yes
 
+  vars:
+    ansistrano_deploy_to: /var/www/myapp          # Path to the deployment directory
+    ansistrano_rollback_version: previous_release # Define the rollback version, e.g., 'previous_release'
+
   tasks:
     - name: Rollback to the previous version using Ansistrano
       include_role:
         name: ansistrano.rollback
+      vars:
+        ansistrano_rollback_enabled: true
+        ansistrano_rollback_version: "{{ ansistrano_rollback_version }}"  # Set the rollback version
+        ansistrano_deploy_to: "{{ ansistrano_deploy_to }}"                # Path to the deployment directory
 
     - name: Restart web server
       service:

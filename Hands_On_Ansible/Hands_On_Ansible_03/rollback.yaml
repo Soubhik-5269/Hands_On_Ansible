@@ -4,13 +4,12 @@
   become: yes
 
   vars:
-    ansistrano_deploy_to: /var/www/myapp          # Path to the deployment directory
-    ansistrano_rollback_version: previous_release # Define the rollback version
-    ansistrano_version_dir: /var/www/myapp/releases/
+    ansistrano_deploy_to: /var/www/mytarget          # Path to the deployment directory
+    
 
   tasks:
     - name: Debug current symlink
-      command: ls -l /var/www/myapp/current
+      command: ls -l /var/www/mytarget/current
       register: current_symlink
 
     - name: Show current symlink
@@ -21,9 +20,7 @@
       include_role:
         name: ansistrano.rollback
       vars:
-        ansistrano_rollback_version: "{{ ansistrano_rollback_version }}"  # Set the rollback version
-        ansistrano_deploy_to: "{{ ansistrano_deploy_to }}"                # Path to the deployment directory
-        ansistrano_version_dir: "{{ ansistrano_version_dir }}"            # Directory for versions
+        ansistrano_deploy_to: /var/www/mytarget
 
     - name: Restart web server
       service:

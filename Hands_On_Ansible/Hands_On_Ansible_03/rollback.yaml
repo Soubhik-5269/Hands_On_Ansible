@@ -1,0 +1,14 @@
+---
+- name: Rollback Application with Ansistrano
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Rollback to the previous version using Ansistrano
+      include_role:
+        name: ansistrano.rollback
+
+    - name: Restart web server
+      service:
+        name: nginx  # Use 'nginx' if you're using Nginx
+        state: restarted

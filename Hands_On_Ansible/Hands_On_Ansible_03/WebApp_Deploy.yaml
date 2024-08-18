@@ -1,0 +1,34 @@
+---
+- name: Deploy Application with Ansistrano
+  hosts: webservers
+  become: yes
+
+  vars:
+    ansistrano_deploy_to: /var/www/myapp
+    ansistrano_repo_path: /tmp/myapp
+    ansistrano_version: v1.0
+
+  tasks:
+    - name: Ensure deployment directory exists
+      file:
+        path: "{{ ansistrano_deploy_to }}"
+        state: directory
+
+    - name: Copy application files to the repository path
+      copy:
+        src: ./index_v1.html
+        dest: "{{ ansistrano_repo_path }}/index.html"
+
+    - name: Deploy application using Ansistrano
+      include_role:
+        name: ansistrano.deploy
+      vars:
+        ansistrano_deploy_via: copy
+        ansistrano_copy_source_path: "{{ ansistrano_repo_path }}"
+        ansistrano_shared_paths:
+          - uploads
+
+    - name: Restart web server
+      service:
+        name: nginx  # Use 'nginx' if you're using Nginx
+        state: restarted
